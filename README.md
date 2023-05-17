@@ -140,6 +140,19 @@ By default this field comes configured with some options, so feel free to config
 
 > *Notice*: This package skip automatically 'binary' and 'streamed' responses. See [File Downloads][link-file-download].
 
+You could also skip route names.
+
+```php
+//config/laravel-page-speed.php
+
+//You can use * as wildcard.
+'skip-route-names' => [
+        'login', //Ignore 'login' named route.
+        'password.*' //Ignore all routes with the 'password.' prefix
+    ],
+```
+
+
 ## Testing
 
 ```sh
