@@ -3,6 +3,7 @@
 namespace RenatoMarinho\LaravelPageSpeed\Test\Config;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use RenatoMarinho\LaravelPageSpeed\Middleware\TrimUrls;
 use RenatoMarinho\LaravelPageSpeed\Test\TestCase;
 use Mockery as m;
@@ -66,6 +67,63 @@ class ConfigTest extends TestCase
         $response = $this->middleware->handle($request, $this->getNext());
 
         $this->assertNotEquals($this->html, $response->getContent());
+    }
+
+    public function testSkipRouteName()
+    {
+        config(['laravel-page-speed.skip-route-names' => ['test.skip']]);
+
+        $route = Route::get('/test/skip/route-name', function () {
+            return $this->html;
+        })->name('test.skip');
+
+        $request = Request::create('/test/skip/route-name', 'GET');
+
+        $request->setRouteResolver(function () use ($route) {
+            return $route;
+        });
+
+        $response = $this->middleware->handle($request, $this->getNext());
+
+        $this->assertEquals($this->html, $response->getContent());
+    }
+
+    public function testNotSkipRouteName()
+    {
+        config(['laravel-page-speed.skip-route-names' => ['test.skip']]);
+
+        $route = Route::get('/test/not/skip/route-name', function () {
+            return $this->html;
+        })->name('test.not.skip');
+
+        $request = Request::create('/test/not/skip/route-name', 'GET');
+
+        $request->setRouteResolver(function () use ($route) {
+            return $route;
+        });
+
+        $response = $this->middleware->handle($request, $this->getNext());
+
+        $this->assertNotEquals($this->html, $response->getContent());
+    }
+
+    public function testWildCardSkipRouteName()
+    {
+        config(['laravel-page-speed.skip-route-names' => ['test.*']]);
+
+        $route = Route::get('/test/skip/route-name', function () {
+            return $this->html;
+        })->name('test.skip');
+
+        $request = Request::create('/test/skip/route-name', 'GET');
+
+        $request->setRouteResolver(function () use ($route) {
+            return $route;
+        });
+
+        $response = $this->middleware->handle($request, $this->getNext());
+
+        $this->assertEquals($this->html, $response->getContent());
     }
 
     public function testSkipRouteWithFileExtension()

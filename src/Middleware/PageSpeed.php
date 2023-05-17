@@ -3,6 +3,7 @@
 namespace RenatoMarinho\LaravelPageSpeed\Middleware;
 
 use Closure;
+use Illuminate\Support\Str;
 use RenatoMarinho\LaravelPageSpeed\Entities\HtmlSpecs;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -93,6 +94,14 @@ abstract class PageSpeed
 
         foreach ($patterns as $pattern) {
             if ($request->is($pattern)) {
+                return false;
+            }
+        }
+
+        $routes_to_skipped = config('laravel-page-speed.skip-route-names', []);
+
+        foreach ($routes_to_skipped as $route) {
+            if (Str::is($route, $request->route()->getName())) {
                 return false;
             }
         }
